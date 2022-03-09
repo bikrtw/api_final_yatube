@@ -7,6 +7,7 @@ User = get_user_model()
 class Group(models.Model):
     title = models.CharField(max_length=128)
     slug = models.SlugField(max_length=128)
+    description = models.CharField(max_length=512, blank=True)
 
     def __str__(self):
         return self.title
@@ -40,6 +41,9 @@ class Comment(models.Model):
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
+    def __str__(self):
+        return f'Comment to post {self.post.pk} with text "{self.text}"'
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -52,3 +56,13 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name='following',
     )
+
+    def __str__(self):
+        return (f'User [{self.user}] '
+                f'is following [{self.following}]')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'following'],
+                                    name='unique_follow')
+        ]
